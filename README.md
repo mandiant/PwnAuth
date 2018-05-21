@@ -22,6 +22,8 @@ Created By Doug Bienstock [(@doughsec)](https://twitter.com/doughsec) while at M
 3. Configure your SSL certificates and NGINX. I have provided a sample NGINX configuration in `nginx/oauth.conf`
 4. Run `setup.sh` as root. This will build the docker services for the OAuth application as well as setup an initial Django administrator for you to use the application with.
 5. Login to the app. Navigate to `/auth/login` in your browser to login to the application with the account you just created.
+
+For more first use instructions see [the wiki](https://github.com/fireeye/PwnAuth/wiki)
 ## Modules
 
 PwnAuth is designed to be modular. A new Identity Provider can easily be supported by developing the necessary database models and views to interact with the Resource Server.
@@ -37,7 +39,7 @@ As long as you follow the module implementation guidelines, the GUI will automat
 
 ## Usage
 
-PwnAuth is designed to be interacted with inside of a browser. There is also an API available available for power users. To learn more about using PwnAuth see the wiki.
+PwnAuth is designed to be interacted with inside of a browser. There is also an API available available for power users. To learn more about using PwnAuth see [the wiki](https://github.com/fireeye/PwnAuth/wiki).
 
 ## Logging
 
