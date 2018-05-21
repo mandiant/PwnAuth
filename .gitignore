@@ -1,0 +1,5 @@
+*.pyc
+.idea/
+message.json
+*.log.*
+*.DS_Store

@@ -1,0 +1,373 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>PwnAuth Home</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+    .row {
+        margin-top: 15px;
+    }
+
+    pre {
+        max-height: 900px;
+        overflow-y: scroll;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">PwnAuth</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    
+                </ul>
+                
+                    
+                        <a href="{% url 'logout' %}"><button class="btn btn-outline-success my-2 my-sm-0" role="button">Logout</button></a>
+                
+            </div>
+        </nav>
+    </header>
+          
+    <main role="main" class="container" style="padding-top:60px">
+        <div class="row">
+            <h2>PwnAuth</h2>
+        </div>
+        <div class="row">
+            <select id="api-select">
+            {% for app in links %}
+                <option value="#">Select API</option>
+                <option value="{{app.url}}">{{ app.application }}</option>
+            {% endfor %}
+            </select>
+            <select id="sphere-select"></select>
+            <select id="victim-select" style="display:none"></select>
+            <select id="sphere-action-select"></select>
+        </div>
+        <div class="row">
+            <div id="fields">
+                <div id="queryParams"></div>
+                <div id="bodyParams"></div>
+                <button type="submit" id="api_submit" class="btn btn-primary">Go!</button>
+            </div>
+
+            
+        </div>
+        <div class="row">
+            <div id="data" class="bg-light border border-secondary rounded  col-lg-9">
+            </div>
+        </div>
+    </main>
+<script type="text/javascript" src="{% static 'oauth_manager/js/swagger-client.js'%}" >
+</script>
+<script type="text/javascript" src="{% static 'oauth_manager/js/jquery.min.js'%}" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'oauth_manager/js/oauth.js' %}"></script>
+<script>
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+function attachCSRF(req, csrftoken) {
+        
+    if(!csrfSafeMethod(req.method)) {
+        req.headers['X-CSRFToken'] = csrftoken;
+    }
+    return req;
+}
+
+ $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+var csrftoken = getCookie('csrftoken');
+
+$(function($) {
+    
+
+    $('#api_submit').click( function() {
+        var selected_sphere = $('select[id="sphere-select"] option:selected').text();
+        var selected_sphere_action = $('select[id="sphere-action-select"] option:selected').attr('value');
+        var params={};
+        var request_body = undefined;
+
+        if( $('select[id="victim-select"]').is(":visible") ) {
+            params["victim_id"] = $('select[id="victim-select"] option:selected').attr('value');
+        } 
+
+        if( $('#fields').children().length > 0 ) {
+            
+          
+            
+            if($("#queryParams").children().length > 0 ) {
+                $.each( $("#queryParams").find('.api-field-input'), function(idx, elem) {
+                    $elem = $(elem);
+                    name = $elem.attr('name');
+                    params[ name ] = $elem.val();
+                });
+            }
+            
+            if($("#bodyParams").children().length > 0 ) {
+
+                function get_input_val($input) {
+                    let val;
+                    if( $input.attr('type') == 'checkbox') {
+                        val = $input.is(":checked");
+                        //console.log(val);
+                    } else if( $input.attr('type') == 'select') {
+                        val = $input.find(':selected').text();
+                    
+                    } else {
+                        val = $input.val();
+                    }
+
+                    return val;
+                }
+                
+                function get_input_vals($elem) {
+                    //console.log($elem);
+                    $inputs = $elem.children('.api-field-input');
+                    //console.log($inputs);
+                    if( $inputs.length > 1 ) {
+                        //simple array
+                        let val = [];
+                        for(i=0; i < $inputs.length; i++) {
+                            val.push( get_input_val( $($inputs[i]) ));
+                        }
+                    } else {
+                        val = get_input_val( $($inputs[0]));
+                    }
+                    return val;
+                }
+
+                request_body = {};
+                var arr = [];
+                var current = request_body;
+                var prevous = request_body;
+                var depth = 1;
+                var prev_depth = 1;
+                var depth_map = {
+                    1 : current
+                };
+                //console.log($("#bodyParams").find('div.bodyParam, div.form-array-elem, div.form-group'));
+                $.each( $("#bodyParams").find('div.bodyParam, div.form-array-elem, div.form-group'), function(idx, elem) {
+                    //console.log(request_body);
+                    $elem = $(elem);
+                    name = $elem.attr('name');
+
+                    //console.log(name);
+
+                    elem_depth = parseInt($elem.attr('x-depth'));
+
+                    if( $elem.is('div') && $elem.hasClass('bodyParam') ) {
+                        // ** Need something here to differentiate between divs that are enclosing objects and divs enclosing arrays of type object
+
+                        if( elem_depth < depth ) {
+                            var temp = current;
+                            
+                            previous = temp;
+                            
+                            prev_depth = parseInt(depth);
+                            depth = parseInt(elem_depth);
+                            current = depth_map[ depth ];
+                        }
+
+                        if ($elem.attr('type') == "array") {
+                            current[ name ] = [];
+                            arr = current[ name ];
+                        } else {
+                            current[ name ] = {};
+                        }
+                        //***
+
+                        previous = current;
+                        current = current[ name ];
+                        prev_depth = parseInt(depth);
+                        depth = parseInt(elem_depth);
+                        if( depth > prev_depth ) {
+                            depth_map[ depth ] = current;
+                        }
+                        
+                        
+                        //console.log('object');
+                        //console.log(current);
+                    } else if ($elem.is('div') && $elem.hasClass('form-array-elem') ) {
+                        //console.log('array elem');
+                        console.log(current);
+                        arr.push( {} );
+                        console.log(arr.length);
+                        current = arr[ arr.length - 1];
+                        prev_depth = parseInt(depth);
+                        depth = parseInt(elem_depth);
+                        depth_map[ depth ] = current;
+
+                    } else {
+                        //console.log('form-group');
+
+                        if( elem_depth < depth ) {
+                            var temp = current;
+                            
+                            previous = temp;
+                            prev_depth = parseInt(depth);
+                            depth = parseInt(elem_depth);
+                            current = depth_map[ depth ];
+                        }
+
+                        //parent = $elem.attr('x-parent');
+                        
+                        //if(!request_body[ parent ] && parent!="root") request_body[ parent ] = {};
+                        prev_depth = parseInt(depth);
+                        depth = parseInt(elem_depth);
+                        if( depth > prev_depth ) {
+                            depth_map[ depth ] = current;
+                        }
+                        
+
+                        name = $elem.attr('name');
+                        //console.log($elem);
+                        //console.log( name );
+
+                        let val = get_input_vals($elem);
+                        //console.log(name);
+                        //console.log('val');
+                        //console.log(val == "");
+                        //console.log($elem.attr('api-required'));
+                        if( val == "" && $elem.attr('api-required') == "false") {
+                           
+                        } else {
+                            current[name] = get_input_vals($elem);
+                        }
+                        
+                        
+
+                     }
+                    
+                    
+                });
+            }
+            //console.log(request_body);
+            
+            
+        }
+        
+
+        var api_method = selected_sphere + "__" + selected_sphere_action;
+       
+        function downloadFile(data) {
+            var binaryString =  window.atob(data.obj.data);
+                var binaryLen = binaryString.length;
+                var bytes = new Uint8Array(binaryLen);
+                for (var i = 0; i < binaryLen; i++)        {
+                    var ascii = binaryString.charCodeAt(i);
+                    bytes[i] = ascii;
+                }
+               var blob = new Blob([bytes], {type: "octet/stream"})
+               url=window.URL.createObjectURL(blob);
+               var link = document.createElement('a');
+               document.body.appendChild(link);
+               link.style = "display: none";
+               link.href= url;
+               var filename = data.obj.filename;
+               link.download= filename;
+               link.click();
+               window.URL.revokeObjectURL(url);
+        }
+
+        function handleResponse(data) {
+            $("#data").html( '<pre>' + escapeCarats( JSON.stringify( data.obj, undefined, 2) ) + '</pre>');
+                //console.log(data);
+                if(data.headers['content-disposition'] && data.headers['content-disposition'].indexOf('attachment') >= 0) {
+                    //console.log('file');
+                    downloadFile(data);
+                    
+                }
+        }
+           if(request_body) {
+                api.default[api_method](params, { requestBody:  request_body }).then( function(data) {
+                handleResponse(data);
+            }, function(err) {
+                console.error("api call failed becasue " + err.message);
+                //console.log(err);
+                $("#data").html( '<pre>' + escapeCarats( JSON.stringify( err.response.obj, undefined, 2) ) + '</pre>');
+
+            });
+           } else {
+                api.default[api_method](params).then( function(data) {
+                    handleResponse(data);
+               
+                //console.log( JSON.stringify( data.obj, undefined, 2) );
+            }, function(err) {
+                console.error("api call failed becasue " + err.message);
+                //console.log(err);
+                $("#data").html( '<pre>' + escapeCarats( JSON.stringify( err.response.obj, undefined, 2) ) + '</pre>');
+            });
+           }
+            
+       
+        
+    });
+
+
+    $('#victim-select').change( function() {
+        var selected_victim = $("#victim-select option:selected").attr("value");
+        victim_id = selected_victim;
+        //console.log(victim_id);
+    });
+
+    $("#api-select").change( function() {
+        var schema_url = $("#api-select option:selected").attr('value');
+
+         swagger = new SwaggerClient({ url: schema_url,  requestInterceptor: req => attachCSRF(req, csrftoken)}).then(
+        function(spec) { 
+            //console.log(spec);
+            execute = spec.execute;
+            return parseSpec(spec.apis, spec.spec);
+        });
+        victim_id = 0;
+        
+        
+            
+
+    }).change();
+
+
+});
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    expose:
+      - 5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - pg_backups:/pg_backups
+    environment:
+      - POSTGRES_USER=oauth
+      - POSTGRES_PASSWORD=oauth
+      - POSTGRES_DB=oauthdb
+  web:
+    build: .
+    volumes: 
+      - /opt/sock:/opt/sock
+      - /opt/app/static:/opt/app/static
+      - /var/log/oauth:/var/log/oauth
+    depends_on:
+      - db
+
+volumes:
+  pg_data: {}
+  pg_backups: {}
