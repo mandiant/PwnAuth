@@ -18,6 +18,8 @@ A web application framework for launching and managing OAuth abuse campaigns.
 3. Configure your SSL certificates and NGINX. I have provided a sample NGINX configuration in `nginx/oauth.conf`
 2. Run `setup.sh` as root. This will build the docker services for the OAuth application as well as setup an initial Django administrator for you to use the application with.
 
+[See the Wiki for post-installation setup](https://github.com/fireeye/PwnAuth/wiki)
+
 ## Modules
 
 PwnAuth is designed to be modular. A new Identity Provider can easily be supported by developing the necessary database models and views to interact with the Resource Server.
