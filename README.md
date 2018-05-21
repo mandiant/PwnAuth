@@ -2,6 +2,8 @@
 
 A web application framework for launching and managing OAuth abuse campaigns.
 
+By Doug Bienstock [@doughsec](https://twitter.com/doughsec) while at Mandiant/FireEye
+
 ## Minimum requirements
 
 * An Internet accessible server (tested running Ubuntu 16.04)
