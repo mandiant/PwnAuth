@@ -44,3 +44,9 @@ PwnAuth is designed to be interacted with inside of a browser. There is also an 
 ## Logging
 
 Logs are written to `/var/log/oauth` on your host system where docker is running. The `audit` log records all actions taken in the application and by whom.
+
+## Detection
+
+Detection can be quite difficult due to the limited amount of information on these applications that is exposed. In general the best bet is to hunt for specific scopes that would be suspicious (i.e. offline access, sending/reading of mail) as well as apps that have redirect URLs (the URL that receives the token) that are strange. This issue is further compounded by the large number of "legitimate" applications out there that request incredibly wide scopes.
+
+See my related repository of [hunting scripts, OAuthHunting](https://github.com/dmb2168/OAuthHunting)
