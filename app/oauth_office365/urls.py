@@ -7,11 +7,10 @@ app_name = 'office365'
 ID_REGEX = '[a-zA-Z0-9\-\=\_]+'
 
 
-
-#TODO fix that URL param needs to be hardcoded in
+# TODO fix that URL param needs to be hardcoded in
 urlpatterns = [
     url(r'^victims/$', views.Index.as_view(), name='index'),
-    url(r'^schema$', login_required(TemplateView.as_view(template_name= 'oauth_office365/oas3.json', content_type='application/json')), name='schema'),
+    url(r'^schema$', login_required(TemplateView.as_view(template_name='oauth_office365/oas3.json', content_type='application/json')), name='schema'),
     url(r'^app_detail$', views.AppDetailViewGeneric.as_view(), name='app_detail'),
     url(r'^refresh/(?P<victim_id>[0-9]+)$', views.ForceTokenRefresh.as_view(), name='force_refresh'),
     url(r'^victim/(?P<victim_id>[0-9]+)$', views.VictimDetailView.as_view(), name='victim_detail'),

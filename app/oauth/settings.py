@@ -38,9 +38,9 @@ if os.getenv('DJANGO_ENV') == 'prod':
     ALLOWED_HOSTS = [os.getenv('DJANGO_SITE')]
 else:
     DEBUG = True
-    ALLOWED_HOSTS = ['127.0.0.1','localhost']
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
-SITE_ID=1
+SITE_ID = 1
 
 OAUTH_MODULES = [
     'oauth_office365.apps.OauthOffice365Config',
@@ -100,15 +100,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'oauthdb',
-        'USER' : 'oauth',
-        'PASSWORD' : 'oauth',
-        'HOST' : POSTGRES_HOST,
-        'PORT' : '5432',
+        'USER': 'oauth',
+        'PASSWORD': 'oauth',
+        'HOST': POSTGRES_HOST,
+        'PORT': '5432',
     }
 }
 
 MIGRATION_MODULES = {
-    'sites' : 'oauth.migrations.site_migrations',
+    'sites': 'oauth.migrations.site_migrations',
 }
 
 # Password validation
@@ -165,17 +165,18 @@ LOGIN_REDIRECT_URL = '/oauth'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 
+
 class RequireAuditFilter(logging.Filter):
     def filter(self, record):
         if record.levelname == 'INFO':
             return True
         return False
 
+
 class RequireDebugLevel(logging.Filter):
     def filter(self, record):
         return record.levelname == 'DEBUG'
 
-        
 
 LOGGING = {
     'version': 1,
@@ -192,63 +193,63 @@ LOGGING = {
         }
     },
     'filters': {
-        'require_debug_true' : {
-            '()' : 'django.utils.log.RequireDebugTrue'
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue'
         },
-        'require_audit' : {
-            '()' : 'oauth.settings.RequireAuditFilter'
+        'require_audit': {
+            '()': 'oauth.settings.RequireAuditFilter'
         },
-        'require_debug_level' : {
-            '()' : 'oauth.settings.RequireDebugLevel'
+        'require_debug_level': {
+            '()': 'oauth.settings.RequireDebugLevel'
         }
     },
-    'handlers' : {
+    'handlers': {
         'email_admins': {
-            'level' : 'ERROR',
-            'class' : 'django.utils.log.AdminEmailHandler',
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
         },
         'error_log': {
-            'level' : 'ERROR',
-            'class' : 'logging.handlers.TimedRotatingFileHandler',
-            'filename' : os.getenv('ERROR_LOG','error.log'),
-            'when' : 'midnight',
-            'backupCount' : 0,
+            'level': 'ERROR',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.getenv('ERROR_LOG', 'error.log'),
+            'when': 'midnight',
+            'backupCount': 0,
             'formatter': 'verbose'
         },
         'debug_log': {
-            'level' : 'DEBUG',
-            'filters' : ['require_debug_true', ],
-            'class' : 'logging.handlers.TimedRotatingFileHandler',
-            'filename' : os.getenv('DEBUG_LOG','debug.log'),
-            'when' : 'midnight',
-            'backupCount' : 0,
-            'formatter' : 'simple'
+            'level': 'DEBUG',
+            'filters': ['require_debug_true', ],
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.getenv('DEBUG_LOG', 'debug.log'),
+            'when': 'midnight',
+            'backupCount': 0,
+            'formatter': 'simple'
 
         },
         'audit_log': {
-            'level' : 'INFO',
-            'filters' : ['require_audit'],
-            'class' : 'logging.handlers.TimedRotatingFileHandler',
-            'filename' : os.getenv('AUDIT_LOG','audit.log'),
-            'when' : 'midnight',
-            'backupCount' : 0,
-            'formatter' : 'action'
+            'level': 'INFO',
+            'filters': ['require_audit'],
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.getenv('AUDIT_LOG', 'audit.log'),
+            'when': 'midnight',
+            'backupCount': 0,
+            'formatter': 'action'
         },
     },
-    'loggers' : {
-        'django' : {
-            'handlers' : ['error_log','debug_log'],
-            'propagate' : True
+    'loggers': {
+        'django': {
+            'handlers': ['error_log', 'debug_log'],
+            'propagate': True
         },
-        'django.request' : {
-            'handlers' : ['error_log', 'email_admins'],
-            'level' : 'ERROR',
+        'django.request': {
+            'handlers': ['error_log', 'email_admins'],
+            'level': 'ERROR',
             'propagate': False
         },
         'oauth': {
-            'handlers' : ['audit_log', 'error_log', 'debug_log'],
-            'level' : 'INFO',
-            'propagate' : False
+            'handlers': ['audit_log', 'error_log', 'debug_log'],
+            'level': 'INFO',
+            'propagate': False
         }
     }
 }

