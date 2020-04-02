@@ -31,9 +31,9 @@ As long as you follow the module implementation guidelines, the GUI will automat
 
 ### Office 365
 
-1. You must create a new OAuth application with microsoft at the [Microsoft App Portal](https://apps.dev.microsoft.com)
-2. You must create a "Web" platform with a proper Redirect URL. The default configuration for PwnAuth is `/oauth/api/microsoft/callback`
-3. Be sure to create a secret key and ensure your scopes include `user.read` and `offline_access`
+1. You must create a new Application within  Microsoft Azure from the [Microsoft Azure Portal](https://portal.azure.com)
+2. You must add a "Web" Redirect URL to receive OAuth tokens. The default configuration for PwnAuth is `/oauth/api/microsoft/callback`
+3. Be sure to create a client secret and ensure API Permissions include `user.read` and `offline_access`
 4. Import the application settings into the application using the GUI
 5. Send out your phishing emails using the `authorization_url_full` link and wait for responses!
 
