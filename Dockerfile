@@ -8,7 +8,7 @@ ENV DJANGO_SITE=localhost
 ENV ERROR_LOG=/var/log/oauth/error.log
 ENV AUDIT_LOG=/var/log/oauth/audit.log
 ENV DEBUG_LOG=/var/log/oauth/debug.log
-ENV SECRET_KEY=%=we7z9!5q0tojpv^lm)lcb@tdp4@thjfs7nrvkojdc^gq2cg2
+ENV SECRET_KEY=CHANGEME
 RUN mkdir /opt/app
 RUN mkdir /opt/sock
 RUN mkdir /var/log/oauth
