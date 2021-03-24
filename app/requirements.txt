@@ -31,7 +31,7 @@ python-magic==0.4.15
 pytz==2017.2
 requests==2.20.0
 requests-oauthlib==0.8.0
-rsa==3.4.2
+rsa==4.1
 simplejson==3.13.2
 six==1.11.0
 uritemplate==3.0.0
