@@ -1,6 +1,6 @@
 astroid==1.6.2
 cachetools==2.0.1
-certifi==2017.7.27.1
+certifi==2022.12.7
 chardet==3.0.4
 coreapi==2.3.3
 coreschema==0.0.4
